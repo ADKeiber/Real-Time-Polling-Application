@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
 	"os/exec"
 	"runtime"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -25,13 +28,36 @@ func realTimePolling(cmd *cobra.Command, args []string) {
 
 	switch runtime.GOOS {
 	case "windows":
-		newPrompt = exec.Command("cmd", "/k", "start; echo Hello World && pause >nul") // Windows
+		newPrompt = exec.Command("cmd", "/k", "start") // Windows
+		err := newPrompt.Start()
+
+		if err != nil {
+			panic(err)
+		}
+
+		i := 0
+
+		for {
+
+			data := fmt.Sprintf("Update %d: Hello, World!", i+1)
+
+			newPrompt.Stdout = os.Stdout
+			newPrompt.Stderr = os.Stderr
+
+			fmt.Print(data)
+			// newPrompt := exec.Command("cmd", "/k", fmt.Sprintf("start; echo %s", data))
+
+			time.Sleep(2 * time.Second)
+
+			i++
+
+			err := newPrompt.Start()
+			if err != nil {
+				panic(err)
+			}
+		}
 	default:
 		panic("Unsupported operating system")
 	}
 
-	err := newPrompt.Start()
-	if err != nil {
-		panic(err)
-	}
 }
