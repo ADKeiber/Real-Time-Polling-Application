@@ -1,2 +1,2 @@
 # Real-Time-Polling-Application
-Application that allows for real time polling
+Use Spring boot should be able to create backend server and Java swing or javaFX for app
