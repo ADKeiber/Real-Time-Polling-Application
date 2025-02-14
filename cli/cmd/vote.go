@@ -11,10 +11,9 @@ func init() {
 }
 
 var voteCmd = &cobra.Command{
-	Use:   "polls",
-	Short: "Retreive active polls",
-	Long: `Retreives all active polls that a user is able to vote on.
-	User can vote using the vote command followed by the voteId followed by their response`,
+	Use:   "vote",
+	Short: "Vote on an active poll",
+	Long:  `Retreives all active polls that a user is able to vote on.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Austin's Magic Polling application v0.1")
 	},
