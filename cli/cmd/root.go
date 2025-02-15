@@ -33,6 +33,10 @@ var rootCmd = &cobra.Command{
 		2: Watch a polls results update live
 		3: Vote on a poll
 		4: Perform CRUD actions on a poll`,
+	// Run: func(cmd *cobra.Command, args []string) {
+	// 	fmt.Println("Goodbye!")
+	// 	os.Exit(0)
+	// },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -46,8 +50,8 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	rootCmd.PersistentFlags().StringP("server", "s", "66", "Server ID (Required)")
-	rootCmd.MarkPersistentFlagRequired("server")
+	//rootCmd.PersistentFlags().StringP("server", "s", "66", "Server ID (Required)")
+	//rootCmd.MarkPersistentFlagRequired("server")
 }
 
 func startInteractiveShell() {
