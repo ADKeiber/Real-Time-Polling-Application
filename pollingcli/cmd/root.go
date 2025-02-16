@@ -12,6 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	serverId string
+)
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "polling",
@@ -28,10 +32,23 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+
+	// Use the flag value
+
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	} else {
+
+		// Check if the required flag is provided
+		if serverId == "" {
+			fmt.Println("Error: The 'server ID' flag is required. Can be set via --server=serverName or -s=serverName")
+			os.Exit(1) // Exit with a non-zero status code
+		}
+
+		fmt.Printf("Welcome to server with ID '%s'!\n", serverId)
+
+		//addCommands()
 		reader := bufio.NewReader(os.Stdin)
 		for {
 			fmt.Print("> ") // Prompt
@@ -58,13 +75,18 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pollingcli.yaml)")
+	// Define the required flag
+	rootCmd.Flags().StringVarP(&serverId, "server", "s", "", "Server ID (required)")
+	// Mark the flag as required
+	rootCmd.MarkFlagRequired("server")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// rootCmd.PersistentFlags().StringP("server", "s", "", "ServerId (required)")
+	// rootCmd.MarkPersistentFlagRequired("server")
 }
+
+// func addCommands() {
+// 	rootCmd.AddCommand(exitCmd)
+// 	rootCmd.AddCommand(pollsCmd)
+// }
