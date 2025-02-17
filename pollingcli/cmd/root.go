@@ -85,8 +85,3 @@ func init() {
 	// rootCmd.PersistentFlags().StringP("server", "s", "", "ServerId (required)")
 	// rootCmd.MarkPersistentFlagRequired("server")
 }
-
-// func addCommands() {
-// 	rootCmd.AddCommand(exitCmd)
-// 	rootCmd.AddCommand(pollsCmd)
-// }
