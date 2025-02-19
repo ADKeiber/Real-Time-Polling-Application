@@ -1,12 +1,15 @@
 package cmd
 
 import (
-	"fmt"
-	"time"
+	"os/exec"
+	"runtime"
 
 	"github.com/spf13/cobra"
 )
 
+/*
+Testing this
+*/
 func init() {
 	rootCmd.AddCommand(connectCmd)
 }
@@ -18,14 +21,17 @@ var connectCmd = &cobra.Command{
 }
 
 func realTimePolling(cmd *cobra.Command, args []string) {
-	fmt.Println("Processing:") // Static line
-	fmt.Println("Step 1...")   // The line that will be updated
+	var newPrompt *exec.Cmd
 
-	steps := []string{"Step 1...", "Step 2...", "Step 3...", "Done!"}
+	switch runtime.GOOS {
+	case "windows":
+		newPrompt = exec.Command("cmd", "/k", "start; echo Hello World && pause >nul") // Windows
+	default:
+		panic("Unsupported operating system")
+	}
 
-	for _, step := range steps {
-		time.Sleep(1 * time.Second) // Simulate work
-		fmt.Print("\033[A\033[K")   // Move up and clear line
-		fmt.Println(step)           // Print the updated text
+	err := newPrompt.Start()
+	if err != nil {
+		panic(err)
 	}
 }
