@@ -17,7 +17,7 @@ func init() {
 }
 
 var batchFileName = "websocket_output.bat"
-var wsURL = "ws://localhost:8080/ws"
+var wsURL = "ws://localhost:8080/hello"
 
 var connectCmd = &cobra.Command{
 	Use:   "connect",
