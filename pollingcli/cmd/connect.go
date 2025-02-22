@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/gorilla/websocket"
+	"github.com/go-stomp/stomp/v3"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,7 @@ func init() {
 }
 
 var batchFileName = "websocket_output.bat"
-var wsURL = "ws://localhost:8080/hello"
+var wsURL = "ws://localhost:8080"
 
 var connectCmd = &cobra.Command{
 	Use:   "connect",
@@ -26,42 +26,7 @@ var connectCmd = &cobra.Command{
 }
 
 func realTimePolling(cmd *cobra.Command, args []string) {
-	// var newPrompt *exec.Cmd
-
-	// switch runtime.GOOS {
-	// case "windows":
-	// 	newPrompt = exec.Command("cmd", "/k", "start") // Windows
-	// 	err := newPrompt.Start()
-
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-
-	// 	i := 0
-
-	// 	for {
-
-	// 		data := fmt.Sprintf("Update %d: Hello, World!", i+1)
-
-	// 		newPrompt.Stdout = os.Stdout
-	// 		newPrompt.Stderr = os.Stderr
-
-	// 		fmt.Print(data)
-	// 		// newPrompt := exec.Command("cmd", "/k", fmt.Sprintf("start; echo %s", data))
-
-	// 		time.Sleep(2 * time.Second)
-
-	// 		i++
-
-	// 		err := newPrompt.Start()
-	// 		if err != nil {
-	// 			panic(err)
-	// 		}
-	// 	}
-	// default:
-	// 	panic("Unsupported operating system")
-	// }
-
+	//Step 1: open new command prompt
 	err := openNewCommandPrompt()
 	if err != nil {
 		fmt.Println("Error opening command prompt:", err)
@@ -70,67 +35,43 @@ func realTimePolling(cmd *cobra.Command, args []string) {
 
 	// Step 2: Connect to WebSocket
 	fmt.Println("Connecting to WebSocket server at", wsURL)
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	// TODO: update to include
+	// opts := []func(*stomp.Conn) error{
+	// 	stomp.ConnOpt.Login("username", "password"), // Replace with your credentials
+	// 	stomp.ConnOpt.Host("/"),
+	// }
+
+	conn, err := stomp.Dial("tcp", wsURL, nil)
+
 	if err != nil {
 		fmt.Println("WebSocket connection error:", err)
 		return
 	}
-	defer conn.Close()
+	defer conn.Disconnect()
+
+	sub, err := conn.Subscribe("/hello", stomp.AckAuto)
+
+	if err != nil {
+		fmt.Println("Failed to subscribe to destination: %v", err)
+	}
+	defer sub.Unsubscribe()
 
 	// Step 3: Listen for messages from WebSocket
 	for {
-		_, message, err := conn.ReadMessage()
+		msg := <-sub.C
 		if err != nil {
 			fmt.Println("WebSocket read error:", err)
 			break
 		}
 
 		// Step 4: Append message to batch script
-		err = appendMessageToBatch(string(message))
+		err = appendMessageToBatch(string(msg.Body))
 		if err != nil {
 			fmt.Println("Error updating batch script:", err)
 		}
 	}
 
 }
-
-// func openNewCommandPrompt(cmd *cobra.Command, args []string) {
-// 	// Create a temporary batch script
-// 	batchFileName := "temp_script.bat"
-// 	batchFile, err := os.Create(batchFileName)
-// 	if err != nil {
-// 		fmt.Println("Error creating batch file:", err)
-// 		return
-// 	}
-// 	defer batchFile.Close()
-
-// 	// Write initial command to open CMD and keep it open
-// 	batchFile.WriteString("@echo off\n")
-
-// 	// Write messages to be displayed
-// 	for i := 1; i <= 10; i++ {
-// 		batchFile.WriteString(fmt.Sprintf("echo Message %d\n", i))
-// 	}
-
-// 	// Keep the CMD window open
-// 	batchFile.WriteString("pause\n")
-
-// 	// Close the batch file to flush data
-// 	batchFile.Close()
-
-// 	// Open the new command prompt and execute the batch file
-// 	newCmd := exec.Command("cmd", "/C", "start", batchFileName)
-// 	err = newCmd.Start()
-// 	if err != nil {
-// 		fmt.Println("Error opening new cmd:", err)
-// 		return
-// 	}
-
-// 	// Wait a bit for the command prompt to launch
-// 	time.Sleep(2 * time.Second)
-
-// 	fmt.Println("New command prompt opened and printing messages...")
-// }
 
 func openNewCommandPrompt() error {
 	// Create batch script with initial message
