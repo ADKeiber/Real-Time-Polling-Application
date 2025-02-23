@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/go-stomp/stomp/v3"
+	"github.com/go-stomp/stomp"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,7 @@ func init() {
 }
 
 var batchFileName = "websocket_output.bat"
-var wsURL = "ws://localhost:8080"
+var wsURL = "ws://localhost:8080/ws-guide-websocket"
 
 var connectCmd = &cobra.Command{
 	Use:   "connect",
@@ -35,13 +35,8 @@ func realTimePolling(cmd *cobra.Command, args []string) {
 
 	// Step 2: Connect to WebSocket
 	fmt.Println("Connecting to WebSocket server at", wsURL)
-	// TODO: update to include
-	// opts := []func(*stomp.Conn) error{
-	// 	stomp.ConnOpt.Login("username", "password"), // Replace with your credentials
-	// 	stomp.ConnOpt.Host("/"),
-	// }
 
-	conn, err := stomp.Dial("tcp", wsURL, nil)
+	conn, err := stomp.Dial("tcp", "localhost:8080/ws-guide-websocket", nil)
 
 	if err != nil {
 		fmt.Println("WebSocket connection error:", err)
@@ -49,7 +44,7 @@ func realTimePolling(cmd *cobra.Command, args []string) {
 	}
 	defer conn.Disconnect()
 
-	sub, err := conn.Subscribe("/hello", stomp.AckAuto)
+	sub, err := conn.Subscribe("/topic/greetings", stomp.AckAuto)
 
 	if err != nil {
 		fmt.Println("Failed to subscribe to destination: %v", err)
