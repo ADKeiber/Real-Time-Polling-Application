@@ -10,7 +10,7 @@ import (
 )
 
 /*
-Testing this
+Testing this it doesn't currently work as expected
 */
 func init() {
 	rootCmd.AddCommand(connectCmd)
@@ -36,7 +36,7 @@ func realTimePolling(cmd *cobra.Command, args []string) {
 	// Step 2: Connect to WebSocket
 	fmt.Println("Connecting to WebSocket server at", wsURL)
 
-	conn, err := stomp.Dial("tcp", "localhost:8080/ws-guide-websocket", nil)
+	conn, err := stomp.Dial("tcp", "localhost:8080", nil)
 
 	if err != nil {
 		fmt.Println("WebSocket connection error:", err)
